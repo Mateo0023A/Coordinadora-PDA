@@ -1,0 +1,5 @@
+﻿Serial;Número de Activo;Marca;Modelo;Tipo de Asignación;Ciudad;Sitio;Área;Responsable;Estado;Fecha de Compra;Costo;Número de Factura;Proveedor;Fecha de Ingreso;Fecha Registro del Sistema
+ABC1234XYZ;0001;Zebra;TC21;CAC01;La Ceja;Principal;Distribución;Sebastian Torres;En uso;2026-10-24;1000000.00;FAC-0001;Zebra Technologies;2026-10-24;2026-10-24 11:38:12
+QAR4213VGR34;0002;Honeywell;HX234;MGA02;guadalajara;CALLE 13;Recolección;Daniela Cardona;En reparación;2025-01-25;1500000.00;FAC-0002;Honeywell Corp;2026-10-25;2026-10-24 23:10:30
+ABC1234DEF;0003;Zebra;TC22;CAB03;Bogotá;Terminal sur;Bodega;Sebastian Torres;En repartición;2026-10-26;1200000.00;FAC-0003;Zebra Technologies;2026-10-27;2026-10-26 14:54:04
+AMU1236S;0004;Honeywell;te21;MGC16;Ciudad de Mexico;sede principal;Administración;Yenni Correa;En uso;2025-06-01;2000000.00;CDA-562;Soluciones ABC;2026-10-26;2026-10-26 20:42:50

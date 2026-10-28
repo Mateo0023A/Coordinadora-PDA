@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Portal de Usuario - Coordinadora{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; text-align: center; padding: 2.5rem;">
+    <div style="font-size: 3.5rem; margin-bottom: 1rem;">👤</div>
+    <h2 class="card-title">Portal de Usuario</h2>
+    <p class="card-subtitle">Módulo de consulta, resumen y operaciones</p>
+
+    <div style="display: flex; flex-direction: column; gap: 1rem; margin: 2rem 0;">
+        <a href="{{ url_for('historial.lista_pdas') }}" class="btn" style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1.05rem;">
+            📋 Ver Inventario y Consulta de PDAs
+        </a>
+
+        <a href="{{ url_for('resumen.resumen_pdas') }}" class="btn" style="background-color: #0d9488; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1.05rem;">
+            📊 Ver Resumen de PDAs (Totales, Estados y Terminales)
+        </a>
+    </div>
+
+    <a href="{{ url_for('ingreso.inicio') }}" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">
+        ← Volver a Selección de Ingreso
+    </a>
+</div>
+{% endblock %}

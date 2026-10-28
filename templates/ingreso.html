@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Selección de Ingreso - Coordinadora{% endblock %}
+
+{% block extra_head %}
+<style>
+    .selector-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        max-width: 720px;
+        width: 100%;
+    }
+
+    .role-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2.2rem 1.8rem;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        border: 2px solid transparent;
+        transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .role-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0, 86, 179, 0.15);
+        border-color: var(--primary);
+    }
+
+    .role-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .role-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 0.6rem;
+    }
+
+    .role-desc {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        line-height: 1.4;
+        margin-bottom: 1.8rem;
+    }
+
+    .btn-admin {
+        background-color: var(--primary);
+    }
+
+    .btn-user {
+        background-color: #2c3e50;
+    }
+
+    .btn-user:hover {
+        background-color: #1a252f;
+    }
+
+    @media (max-width: 650px) {
+        .selector-container {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+    <h2 style="font-size: 1.8rem; font-weight: 700; color: #1a202c; margin-bottom: 0.5rem; text-align: center;">
+        ¿Cómo deseas ingresar al sistema?
+    </h2>
+    <p style="color: var(--text-muted); margin-bottom: 2rem; text-align: center;">
+        Selecciona tu perfil para continuar
+    </p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alerts" style="max-width: 720px; width: 100%;">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="selector-container">
+        <!-- Tarjeta Administrador -->
+        <div class="role-card">
+            <div>
+                <div class="role-icon">🛡️</div>
+                <div class="role-title">Administrador</div>
+                <div class="role-desc">
+                    Acceso para registrar, gestionar y controlar equipos, terminales y puntos fijos en la base de datos CSV.
+                </div>
+            </div>
+            <a href="{{ url_for('ingreso.login_admin') }}" class="btn btn-admin" style="text-decoration: none;">
+                Ingresar como Administrador
+            </a>
+        </div>
+
+        <!-- Tarjeta Usuario -->
+        <div class="role-card">
+            <div>
+                <div class="role-icon">👤</div>
+                <div class="role-title">Usuario</div>
+                <div class="role-desc">
+                    Portal de usuario general para consultas, visualización y solicitudes asignadas.
+                </div>
+            </div>
+            <a href="{{ url_for('ingreso.panel_usuario') }}" class="btn btn-user" style="text-decoration: none;">
+                Ingresar como Usuario
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

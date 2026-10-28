@@ -1,0 +1,346 @@
+{% extends "base.html" %}
+
+{% block title %}Resumen General de PDAs - Coordinadora{% endblock %}
+
+{% block extra_head %}
+<style>
+    .resumen-container {
+        width: 100%;
+        max-width: 1100px;
+        display: flex;
+        flex-direction: column;
+        gap: 1.8rem;
+    }
+
+    .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.2rem;
+    }
+
+    .kpi-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+
+    .kpi-icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+    }
+
+    .kpi-info h3 {
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.3rem;
+    }
+
+    .kpi-info .kpi-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text);
+        line-height: 1.1;
+    }
+
+    .section-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.8rem;
+        border: 1px solid var(--border);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.2rem;
+        padding-bottom: 0.8rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.92rem;
+    }
+
+    th {
+        background-color: #f8fafc;
+        color: var(--text);
+        font-weight: 700;
+        padding: 0.85rem 1rem;
+        border-bottom: 2px solid var(--border);
+        text-align: left;
+    }
+
+    td {
+        padding: 0.85rem 1rem;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+    }
+
+    tr:hover td {
+        background-color: #f8fafc;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        font-weight: 600;
+    }
+
+    .badge-en-uso { background-color: #d1fae5; color: #065f46; }
+    .badge-en-bodega { background-color: #dbeafe; color: #1e40af; }
+    .badge-en-repartición { background-color: #e0e7ff; color: #3730a3; }
+    .badge-en-reparación { background-color: #fef3c7; color: #92400e; }
+    .badge-dado-de-baja { background-color: #fee2e2; color: #991b1b; }
+    .badge-perdido { background-color: #f3f4f6; color: #374151; }
+
+    .progress-bar-container {
+        width: 100%;
+        background-color: #e2e8f0;
+        border-radius: 6px;
+        height: 10px;
+        overflow: hidden;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background-color: var(--primary);
+        border-radius: 6px;
+    }
+
+    .btn-action {
+        padding: 0.55rem 1.1rem;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn-volver {
+        background-color: #e2e8f0;
+        color: #334155;
+    }
+
+    .btn-volver:hover {
+        background-color: #cbd5e1;
+    }
+
+    .serial-tag {
+        display: inline-block;
+        background: #edf2f7;
+        color: #2d3748;
+        font-family: monospace;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        margin: 0.15rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="resumen-container">
+    <!-- Encabezado y Navegación -->
+    <div class="header-actions">
+        <div>
+            <h2 style="font-size: 1.7rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem;">
+                📊 Resumen General de PDAs
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">
+                Métricas del inventario: Total general, distribución por estado y ubicación por terminal.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+            <a href="{{ url_for('historial.lista_pdas') }}" class="btn-action btn-volver">
+                ← Volver al Inventario
+            </a>
+            <a href="{{ url_for('ingreso.inicio') }}" class="btn-action btn-volver">
+                🏠 Menú Principal
+            </a>
+        </div>
+    </div>
+
+    <!-- Tarjetas KPI -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-icon" style="background-color: #e0f2fe; color: #0284c7;">📱</div>
+            <div class="kpi-info">
+                <h3>Total PDAs en el Sistema</h3>
+                <div class="kpi-value">{{ total_pdas }}</div>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon" style="background-color: #dcfce7; color: #16a34a;">🏢</div>
+            <div class="kpi-info">
+                <h3>Terminales Registradas</h3>
+                <div class="kpi-value">{{ resumen_terminales|length }}</div>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon" style="background-color: #fef3c7; color: #d97706;">⚡</div>
+            <div class="kpi-info">
+                <h3>Estados Operativos</h3>
+                <div class="kpi-value">{{ resumen_estados|length }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección 1: Distribución por Estado -->
+    <div class="section-card">
+        <div class="section-header">
+            <div class="section-title">
+                <span>🔄</span> Cuántas PDAs hay en cada Estado
+            </div>
+            <span style="font-size: 0.85rem; color: var(--text-muted);">
+                Total: <strong>{{ total_pdas }}</strong> equipos
+            </span>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">Estado</th>
+                        <th style="width: 15%; text-align: center;">Cantidad</th>
+                        <th style="width: 20%; text-align: center;">Porcentaje</th>
+                        <th style="width: 40%;">Proporción Visual</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in resumen_estados %}
+                        {% set estado_slug = item.estado.lower().replace(' ', '-') %}
+                        <tr>
+                            <td>
+                                <span class="badge badge-{{ estado_slug }}">
+                                    {{ item.estado }}
+                                </span>
+                            </td>
+                            <td style="text-align: center; font-weight: 700; font-size: 1.05rem;">
+                                {{ item.cantidad }}
+                            </td>
+                            <td style="text-align: center; font-weight: 600; color: var(--text-muted);">
+                                {{ item.porcentaje }}%
+                            </td>
+                            <td>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar-fill" style="width: {{ item.porcentaje }}%;"></div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Sección 2: Distribución por Terminal -->
+    <div class="section-card">
+        <div class="section-header">
+            <div class="section-title">
+                <span>📍</span> Cuántas PDAs hay en cada Terminal
+            </div>
+            <span style="font-size: 0.85rem; color: var(--text-muted);">
+                <strong>{{ resumen_terminales|length }}</strong> terminales activas
+            </span>
+        </div>
+
+        {% if resumen_terminales %}
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 18%;">Código Terminal</th>
+                            <th style="width: 28%;">Ciudad / Sitio</th>
+                            <th style="width: 14%; text-align: center;">Cantidad PDAs</th>
+                            <th style="width: 14%; text-align: center;">% del Total</th>
+                            <th style="width: 26%;">Equipos Asignados</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in resumen_terminales %}
+                            <tr>
+                                <td>
+                                    <strong style="font-family: monospace; font-size: 1rem; color: var(--primary);">
+                                        {{ item.terminal }}
+                                    </strong>
+                                </td>
+                                <td>
+                                    <div><strong>{{ item.ciudades }}</strong></div>
+                                    <div style="font-size: 0.82rem; color: var(--text-muted);">{{ item.sitios }}</div>
+                                </td>
+                                <td style="text-align: center; font-weight: 700; font-size: 1.05rem;">
+                                    <span style="background: #e0f2fe; color: #0369a1; padding: 0.25rem 0.7rem; border-radius: 12px;">
+                                        {{ item.cantidad }}
+                                    </span>
+                                </td>
+                                <td style="text-align: center; font-weight: 600; color: var(--text-muted);">
+                                    {{ item.porcentaje }}%
+                                </td>
+                                <td>
+                                    <div>
+                                        {% for s in item.seriales %}
+                                            <a href="{{ url_for('historial.detalle_pda', serial=s) }}" class="serial-tag" title="Ver detalle de {{ s }}" style="text-decoration: none;">
+                                                {{ s }}
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                No hay terminales ni PDAs registradas en el archivo CSV aún.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

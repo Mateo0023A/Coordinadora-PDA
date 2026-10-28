@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Coordinadora - Sistema de Gestión de PDAs{% endblock %}</title>
+    <style>
+        :root {
+            --primary: #0056b3;
+            --primary-hover: #004494;
+            --bg: #f4f6f9;
+            --card-bg: #ffffff;
+            --text: #2d3748;
+            --text-muted: #718096;
+            --border: #e2e8f0;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        header h1 a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .header-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.15);
+            transition: background 0.2s;
+        }
+
+        .header-nav a:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 2rem 1rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid var(--border);
+            width: 100%;
+            padding: 2rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            text-align: center;
+        }
+
+        .card-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .required {
+            color: var(--danger);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.65rem 0.8rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: white;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.15);
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 6px;
+            background-color: var(--primary);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .alerts {
+            margin-bottom: 1.25rem;
+        }
+
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <header>
+        <h1><a href="{{ url_for('ingreso.inicio') }}">Coordinadora - Sistema de PDAs</a></h1>
+        <div class="header-nav">
+            {% if session.get('rol') == 'admin' %}
+                <a href="{{ url_for('registro.registro') }}">➕ Registrar Equipo</a>
+                <a href="{{ url_for('historial.lista_pdas') }}">📋 Ver Inventario</a>
+                <a href="{{ url_for('resumen.resumen_pdas') }}">📊 Resumen PDAs</a>
+                <span>Admin: <strong>{{ session.get('usuario') }}</strong></span>
+                <a href="{{ url_for('ingreso.logout') }}">Salir</a>
+            {% elif session.get('rol') == 'usuario' %}
+                <a href="{{ url_for('historial.lista_pdas') }}">📋 Inventario PDAs</a>
+                <a href="{{ url_for('resumen.resumen_pdas') }}">📊 Resumen PDAs</a>
+                <span>Rol: <strong>Usuario</strong></span>
+                <a href="{{ url_for('ingreso.logout') }}">Salir</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        &copy; Coordinadora - Sistema de Gestión e Historial de PDAs
+    </footer>
+</body>
+</html>

@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% block title %}Inventario de PDAs - Coordinadora{% endblock %}
+
+{% block extra_head %}
+<style>
+    .filter-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        border: 1px solid var(--border);
+        margin-bottom: 1.5rem;
+        width: 100%;
+    }
+
+    .filter-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr auto;
+        gap: 0.8rem;
+        align-items: end;
+    }
+
+    .table-container {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        border: 1px solid var(--border);
+        overflow-x: auto;
+        width: 100%;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f8fafc;
+        color: var(--text);
+        font-weight: 700;
+        padding: 0.9rem 1rem;
+        border-bottom: 2px solid var(--border);
+        white-space: nowrap;
+    }
+
+    td {
+        padding: 0.85rem 1rem;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+    }
+
+    tr:hover {
+        background-color: #f1f5f9;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.3rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+
+    .badge-en-uso { background-color: #d1fae5; color: #065f46; }
+    .badge-en-bodega { background-color: #dbeafe; color: #1e40af; }
+    .badge-en-repartición { background-color: #e0e7ff; color: #3730a3; }
+    .badge-en-reparación { background-color: #fef3c7; color: #92400e; }
+    .badge-dado-de-baja { background-color: #fee2e2; color: #991b1b; }
+    .badge-perdido { background-color: #f3f4f6; color: #374151; }
+
+    .btn-detail {
+        background-color: var(--primary);
+        color: white;
+        text-decoration: none;
+        padding: 0.45rem 0.85rem;
+        border-radius: 5px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        display: inline-block;
+        transition: background 0.2s;
+        white-space: nowrap;
+    }
+
+    .btn-detail:hover {
+        background-color: var(--primary-hover);
+    }
+
+    .btn-filter {
+        padding: 0.65rem 1.2rem;
+        height: 38px;
+    }
+
+    .btn-reset {
+        background: #e2e8f0;
+        color: #4a5568;
+        padding: 0.65rem 1rem;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 38px;
+    }
+
+    .btn-reset:hover {
+        background: #cbd5e1;
+    }
+
+    .results-count {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        margin-bottom: 0.8rem;
+    }
+
+    @media (max-width: 900px) {
+        .filter-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+    @media (max-width: 550px) {
+        .filter-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="width: 100%; max-width: 1100px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.8rem;">
+        <div>
+            <h2 style="font-size: 1.6rem; font-weight: 700; color: var(--text);">Inventario y Consulta de PDAs</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Consulta de equipos, ubicación, estado actual e historial</p>
+        </div>
+        <div>
+            <a href="{{ url_for('resumen.resumen_pdas') }}" class="btn-detail" style="background-color: #0d9488; padding: 0.65rem 1.15rem; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.4rem; box-shadow: 0 2px 6px rgba(13, 148, 136, 0.25);">
+                📊 Resumen de PDAs
+            </a>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alerts">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Panel de Búsqueda y Filtros -->
+    <div class="filter-card">
+        <form method="GET" action="{{ url_for('historial.lista_pdas') }}">
+            <div class="filter-grid">
+                <!-- Buscador por Serial -->
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="serial">Buscar por Serial</label>
+                    <input 
+                        type="text" 
+                        id="serial" 
+                        name="serial" 
+                        value="{{ filtro_serial }}" 
+                        class="form-control" 
+                        placeholder="Ej: ZEB123..."
+                        style="text-transform: uppercase;"
+                    >
+                </div>
+
+                <!-- Filtro por Ciudad -->
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="ciudad">Ciudad</label>
+                    <select id="ciudad" name="ciudad" class="form-control">
+                        <option value="">-- Todas --</option>
+                        {% for c in ciudades %}
+                            <option value="{{ c }}" {% if filtro_ciudad == c %}selected{% endif %}>{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Filtro por Estado -->
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="estado">Estado</label>
+                    <select id="estado" name="estado" class="form-control">
+                        <option value="">-- Todos --</option>
+                        {% for est in estados %}
+                            <option value="{{ est }}" {% if filtro_estado == est %}selected{% endif %}>{{ est }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Filtro por Responsable -->
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="responsable">Responsable</label>
+                    <select id="responsable" name="responsable" class="form-control">
+                        <option value="">-- Todos --</option>
+                        {% for resp in responsables %}
+                            <option value="{{ resp }}" {% if filtro_responsable == resp %}selected{% endif %}>{{ resp }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Botones -->
+                <div style="display: flex; gap: 0.5rem;">
+                    <button type="submit" class="btn btn-filter">Filtrar</button>
+                    {% if filtro_serial or filtro_ciudad or filtro_estado or filtro_responsable %}
+                        <a href="{{ url_for('historial.lista_pdas') }}" class="btn-reset" title="Restablecer filtros">✕</a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="results-count">
+        Mostrando <strong>{{ total_pdas }}</strong> PDA(s) encontrada(s)
+    </div>
+
+    <!-- Tabla de PDAs -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Serial</th>
+                    <th>Nº Activo</th>
+                    <th>Marca / Modelo</th>
+                    <th>Terminal</th>
+                    <th>Ciudad / Sitio</th>
+                    <th>Responsable</th>
+                    <th>Estado</th>
+                    <th style="text-align: center;">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if equipos %}
+                    {% for eq in equipos %}
+                        {% set estado_slug = eq.estado.lower().replace(' ', '-') %}
+                        <tr>
+                            <td><strong>{{ eq.serial }}</strong></td>
+                            <td>{{ eq.activo }}</td>
+                            <td>{{ eq.marca }} {{ eq.modelo }}</td>
+                            <td><span style="font-family: monospace; font-weight: 600;">{{ eq.tipo_asignacion }}</span></td>
+                            <td>{{ eq.ciudad }} <small style="color: var(--text-muted);">({{ eq.sitio }})</small></td>
+                            <td>{{ eq.responsable }}</td>
+                            <td>
+                                <span class="badge badge-{{ estado_slug }}">
+                                    {{ eq.estado }}
+                                </span>
+                            </td>
+                            <td style="text-align: center;">
+                                <a href="{{ url_for('historial.detalle_pda', serial=eq.serial) }}" class="btn-detail">
+                                    Ver Detalle e Historial
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔍</div>
+                            No se encontraron PDAs que coincidan con los criterios de búsqueda o no hay equipos registrados aún.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

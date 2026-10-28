@@ -1,0 +1,366 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle PDA {{ equipo.serial }} - Coordinadora{% endblock %}
+
+{% block extra_head %}
+<style>
+    .detail-container {
+        width: 100%;
+        max-width: 920px;
+    }
+
+    .info-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        border: 1px solid var(--border);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+        margin-top: 1.25rem;
+    }
+
+    .detail-item {
+        background-color: #f8fafc;
+        padding: 0.8rem 1rem;
+        border-radius: 6px;
+        border: 1px solid #edf2f7;
+    }
+
+    .detail-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.3rem;
+    }
+
+    .detail-value {
+        font-size: 1rem;
+        color: var(--text);
+        font-weight: 600;
+        word-break: break-word;
+    }
+
+    .badge-status {
+        padding: 0.35rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+    .badge-en-uso { background-color: #d1fae5; color: #065f46; }
+    .badge-en-bodega { background-color: #dbeafe; color: #1e40af; }
+    .badge-en-repartición { background-color: #e0e7ff; color: #3730a3; }
+    .badge-en-reparación { background-color: #fef3c7; color: #92400e; }
+    .badge-dado-de-baja { background-color: #fee2e2; color: #991b1b; }
+    .badge-perdido { background-color: #f3f4f6; color: #374151; }
+
+    .form-grid-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .timeline {
+        position: relative;
+        padding-left: 2rem;
+        margin-top: 1.5rem;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 11px;
+        width: 2px;
+        background: #e2e8f0;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 1.75rem;
+    }
+
+    .timeline-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .timeline-dot {
+        position: absolute;
+        left: -2rem;
+        top: 4px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background-color: var(--primary);
+        border: 3px solid white;
+        box-shadow: 0 0 0 2px var(--primary);
+    }
+
+    .timeline-content {
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 1.1rem;
+    }
+
+    .timeline-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.6rem;
+    }
+
+    .timeline-event {
+        font-weight: 700;
+        color: var(--primary);
+        font-size: 0.95rem;
+    }
+
+    .timeline-date {
+        color: #4b5563;
+        font-size: 0.82rem;
+        background: #e2e8f0;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-family: monospace;
+        font-weight: 600;
+    }
+
+    .timeline-body {
+        font-size: 0.92rem;
+        color: var(--text);
+        line-height: 1.5;
+    }
+
+    .timeline-footer {
+        margin-top: 0.6rem;
+        padding-top: 0.5rem;
+        border-top: 1px dashed #e2e8f0;
+        font-size: 0.82rem;
+        color: var(--text-muted);
+    }
+
+    .optional-tag {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        font-weight: normal;
+    }
+
+    @media (max-width: 768px) {
+        .detail-grid, .form-grid-3 {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <a href="{{ url_for('historial.lista_pdas') }}" style="color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.95rem;">
+            ← Volver a la Lista de PDAs
+        </a>
+        <div>
+            {% set estado_slug = equipo.estado.lower().replace(' ', '-') %}
+            <span class="badge-status badge-{{ estado_slug }}">
+                Estado: {{ equipo.estado }}
+            </span>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alerts">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Tarjeta 1: Ficha Técnica Actual -->
+    <div class="info-card">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid var(--border); padding-bottom: 0.8rem;">
+            <div>
+                <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.2rem;">
+                    PDA Serial: {{ equipo.serial }}
+                </h2>
+                <span style="font-size: 0.9rem; color: var(--text-muted);">Activo: #{{ equipo.activo }} | {{ equipo.marca }} {{ equipo.modelo }}</span>
+            </div>
+            <div style="font-size: 0.9rem;">
+                Terminal Actual: <strong style="font-family: monospace; color: var(--primary); font-size: 1.1rem;">{{ equipo.tipo_asignacion }}</strong>
+            </div>
+        </div>
+
+        <div class="detail-grid">
+            <div class="detail-item">
+                <div class="detail-label">Responsable Actual</div>
+                <div class="detail-value">{{ equipo.responsable }}</div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-label">Ciudad / Sitio</div>
+                <div class="detail-value">{{ equipo.ciudad }} - {{ equipo.sitio }}</div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-label">Área</div>
+                <div class="detail-value">{{ equipo.area }}</div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-label">Fecha de Compra</div>
+                <div class="detail-value">{{ equipo.fecha_compra }}</div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-label">Costo</div>
+                <div class="detail-value">${{ equipo.costo }}</div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-label">Número de Factura</div>
+                <div class="detail-value">{{ equipo.numero_factura if equipo.numero_factura else 'N/A' }}</div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-label">Proveedor</div>
+                <div class="detail-value">{{ equipo.proveedor if equipo.proveedor else 'N/A' }}</div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-label">Fecha de Ingreso</div>
+                <div class="detail-value">{{ equipo.fecha_ingreso }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tarjeta 2: Formulario de Modificaciones y Traslados -->
+    <div class="info-card" style="border-left: 4px solid var(--primary);">
+        <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text); margin-bottom: 0.3rem;">
+            Formulario de Modificaciones y Traslados
+        </h3>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+            Actualiza la terminal por traslado, cambia el responsable o modifica el estado de la PDA. La fecha y hora se registrarán de forma automática.
+        </p>
+
+        <form method="POST" action="{{ url_for('historial.detalle_pda', serial=equipo.serial) }}">
+            <div class="form-grid-3">
+                <!-- 1. Traslado a otra terminal -->
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="terminal">Traslado a Terminal <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="terminal" 
+                        name="terminal" 
+                        value="{{ equipo.tipo_asignacion }}" 
+                        class="form-control" 
+                        maxlength="5"
+                        minlength="5"
+                        pattern="^[MCmc][A-Za-z]{2}[0-9]{2}$"
+                        required
+                        style="text-transform: uppercase; font-weight: 600;"
+                        oninput="this.value = this.value.replace(/\s+/g, '').toUpperCase()"
+                    >
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+                        3 letras (1ª C o M) y 2 números (ej: CAM01).
+                    </div>
+                </div>
+
+                <!-- 2. Cambio de responsable -->
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="responsable">Cambio de Responsable <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="responsable" 
+                        name="responsable" 
+                        value="{{ equipo.responsable }}" 
+                        class="form-control" 
+                        placeholder="Nombre completo"
+                        required
+                    >
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+                        Persona custodia del equipo.
+                    </div>
+                </div>
+
+                <!-- 3. Cambio de estado -->
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="estado">Cambio de Estado <span class="required">*</span></label>
+                    <select id="estado" name="estado" class="form-control" required>
+                        {% for est in opciones_estado %}
+                            <option value="{{ est }}" {% if equipo.estado == est %}selected{% endif %}>{{ est }}</option>
+                        {% endfor %}
+                    </select>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+                        Estado operativo de la PDA.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comentario opcional -->
+            <div class="form-group">
+                <label for="comentario">
+                    Comentario sobre los cambios <span class="optional-tag">(Opcional)</span>
+                </label>
+                <textarea 
+                    id="comentario" 
+                    name="comentario" 
+                    class="form-control" 
+                    rows="2" 
+                    placeholder="Escribe algún detalle o justificación si lo consideras necesario..."
+                ></textarea>
+            </div>
+
+            <button type="submit" class="btn" style="max-width: 260px;">
+                Guardar Modificación
+            </button>
+        </form>
+    </div>
+
+    <!-- Tarjeta 3: Historial Cronológico con Fecha y Hora -->
+    <div class="info-card">
+        <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text); margin-bottom: 0.3rem;">
+            Historial de Movimientos y Modificaciones
+        </h3>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+            Registro detallado con fecha y hora exacta de cada evento, traslado o novedad
+        </p>
+
+        {% if historial %}
+            <div class="timeline">
+                {% for h in historial %}
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <span class="timeline-event">{{ h.evento }}</span>
+                                <span class="timeline-date">📅 {{ h.fecha }}</span>
+                            </div>
+                            <div class="timeline-body">
+                                {{ h.observacion }}
+                            </div>
+                            <div class="timeline-footer">
+                                Custodio reportado: <strong>{{ h.responsable }}</strong> | Estado: <strong>{{ h.estado }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="color: var(--text-muted); font-size: 0.9rem;">No hay registros previos en el historial.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+Serial;Fecha;Evento;Responsable;Estado;Observación
+ABC1234XYZ;2026-10-24 11:38:12;Registro Inicial;Sebastian Torres;En uso;Ingreso de la PDA al sistema asignada a La Ceja - Principal (CAC01).
+ABC1234XYZ;2026-10-24 11:39:09;Cambio de Estado Operativo;Sebastian Torres;En bodega;Se pasa a nuevo centro
+QAR4213VGR34;2026-10-24 23:10:30;Registro Inicial;Daniela Cardona;En reparación;Ingreso de la PDA al sistema asignada a guadalajara - CALLE 13 (MGA02).
+ABC1234DEF;2026-10-26 14:54:04;Registro Inicial;Sebastian Torres;En bodega;Ingreso de la PDA al sistema asignada a Bogotá - Terminal sur (CCB12).
+ABC1234DEF;2026-10-26 14:54:47;Modificación de PDA;Sebastian Torres;En repartición;"Traslado de terminal: 'CCB12' → 'CAB03'; Cambio de estado: 'En bodega' → 'En repartición' | Comentario: Se translada equipo para la terminal de Barranquilla"
+AMU1236S;2026-10-26 20:42:50;Registro Inicial;Yenni Correa;En repartición;Ingreso de la PDA al sistema asignada a Ciudad de Mexico - sede principal (MGC16). Factura: CDA-562, Proveedor: Soluciones ABC.
+AMU1236S;2026-10-26 20:43:44;Cambio de Estado;Yenni Correa;En uso;Cambio de estado: 'En repartición' → 'En uso'
